@@ -21,7 +21,7 @@ Each document contains the following properties:
 To import simply use ```mongoimport```:
 
 ```bash
-mongoimport -d <database> -c <collection> --file ./db-data/towns.json 
+mongoimport -d <database> -c towns --file ./db-data/towns.json 
 ```
 
 Don't forget to update the indexes so you can use MongoDB's GeoSpatial features. Access the ```mongo``` shell and update the indexes:
@@ -44,7 +44,54 @@ db.towns.find( {  loc : { $near : [ <longitude> , <latitude> ], $maxDistance: <d
 
 ### Mongoose
 
-Coming soon...
+You can use the following schema in Mongoose:
+
+```javascript
+var mongoose = require('mongoose');
+
+var Schema = mongoose.Schema;
+
+var townSchema = new Schema({
+    town: { type: String },
+    reference: { type: String },
+    county: { type: String },
+    country: { type: String },
+    type: { type: String },
+    latitude: { type: Number},
+    longitude: { type: Number },
+    loc: {type: [Number], index: '2d'}
+});
+
+module.exports = mongoose.model('Town', townSchema);
+```
+
+In order to perform queries an example in NodeJS:
+
+```javascript
+var Town = require('./path/to/mongoose/model/town');
+
+module.exports = {
+  search: function(longitude, latutude, kilometres) {
+    return new Promise(function(resolve, reject) {
+      var radians = kilometres / 6371;
+      
+      Town.find({
+        loc: {
+            $near: [longitude, latitude],
+            $maxDistance: radians
+          }
+      },
+      function(error, doc) {
+        if(error) {
+          return reject(error);
+        }
+        
+        resolve(doc);
+      });
+    });
+  }
+};
+```
 
 ## License
 
