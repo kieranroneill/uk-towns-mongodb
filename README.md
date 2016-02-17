@@ -24,13 +24,7 @@ To import simply use ```mongoimport```:
 mongoimport -d <database> -c <collection> --file ./db-data/towns.json 
 ```
 
-Don't forget to update the indexes so you can use MongoDB's GeoSpatial features. Access the ```mongo``` shell:
-
-```bash
-mongo
-```
-
-Update the indexes:
+Don't forget to update the indexes so you can use MongoDB's GeoSpatial features. Access the ```mongo``` shell and update the indexes:
 
 ```bash
 db.towns.createIndex( { "loc": "2d" } )
