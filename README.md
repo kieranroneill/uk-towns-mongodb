@@ -39,7 +39,7 @@ That should be it.
 To query using MongoDB's geospatial features, you can use the following query:
 
 ```bash
-db.towns.find( {  loc : { $near : [ <longitude> , <latitude> ], $maxDistance: <distance in radians> } } )
+db.towns.find( {  loc : { $geoWithin: { $centerSphere: [ [<longitude>, <latitude>], <distance in radians> ] } } } )
 ```
 
 ### Mongoose
@@ -71,25 +71,28 @@ In order to perform queries an example in NodeJS:
 var Town = require('./path/to/mongoose/model/town');
 
 module.exports = {
-  search: function(longitude, latutude, kilometres) {
-    return new Promise(function(resolve, reject) {
-      var radians = kilometres / 6371;
+    search: function(longitude, latutude, kilometres) {
+        return new Promise(function(resolve, reject) {
+            var radians = kilometres / 6371;
       
-      Town.find({
-        loc: {
-            $near: [longitude, latitude],
-            $maxDistance: radians
-          }
-      },
-      function(error, doc) {
-        if(error) {
-          return reject(error);
-        }
+            Town.find({
+                loc: {
+                    $geoWithin: {
+                        $centerSphere: [
+                            [longitude, latitude], radians
+                        ]
+                    }
+                }
+            },
+            function(error, doc) {
+                if(error) {
+                    return reject(error);
+                }
         
-        resolve(doc);
-      });
-    });
-  }
+                resolve(doc);
+            });
+        });
+    }
 };
 ```
 
